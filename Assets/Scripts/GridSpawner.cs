@@ -10,7 +10,7 @@ public class GridSpawner : MonoBehaviour {
 
 	public GameObject pointPrefab;
 	public GameObject linePrefab;
-	public GameObject tankPrefab;
+	public Transform tank;
 
 	Quaternion right = Quaternion.AngleAxis(-90, Vector3.forward);
 
@@ -38,9 +38,7 @@ public class GridSpawner : MonoBehaviour {
 			}
 		}
 
-		GameObject tank = Instantiate<GameObject>(tankPrefab,
-			origin + new Vector3(startPos.x * spacing, startPos.y * spacing, -1), Quaternion.identity);
-		tank.transform.parent = transform;
+		tank.position = origin + new Vector3(startPos.x * spacing, startPos.y * spacing, -1);
 	}
 
 	public void RemoveGrid() {
