@@ -23,7 +23,7 @@ public class GridSpawner : MonoBehaviour {
 
 	public Dictionary<Vector2Int, Point> points { get; private set; }
 
-	Quaternion right = Quaternion.AngleAxis(-90, Vector3.forward);
+	Quaternion right = Quaternion.Euler(0, 0, -90);
 
 	public void SpawnGrid() {
 		RemoveGrid();
