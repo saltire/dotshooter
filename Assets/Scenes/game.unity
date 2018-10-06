@@ -1073,10 +1073,6 @@ Prefab:
       propertyPath: m_RootOrder
       value: 3
       objectReference: {fileID: 0}
-    - target: {fileID: 1448431662507646, guid: 38c9273ce9dd98e4aac246989a405afd, type: 2}
-      propertyPath: m_TagString
-      value: Gun
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 38c9273ce9dd98e4aac246989a405afd, type: 2}
   m_IsPrefabAsset: 0

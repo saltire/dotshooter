@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 212380746971909702}
   m_Layer: 0
   m_Name: gun
-  m_TagString: Untagged
+  m_TagString: Gun
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -87,7 +87,12 @@ MonoBehaviour:
   turnHandleRadius: 0.3
   moveHandleOffset: {x: 0, y: -0.75}
   moveHandleRadius: 0.3
-  snapDistance: 0.1
+  smoothTurnTime: 0.1
+  maxTurnSpeed: 1000
+  maxAngle: 90
+  smoothMoveTime: 0.015
+  maxMoveSpeed: 35
+  snapDistance: 0.15
 --- !u!212 &212063874793624678
 SpriteRenderer:
   m_ObjectHideFlags: 1

@@ -15,8 +15,16 @@ public class TankTouch : MonoBehaviour {
 	public Vector2 moveHandleOffset;
 	public float moveHandleRadius = 0.3f;
 
-	public float snapDistance = 0.2f;
+	public float smoothTurnTime = .1f;
+	public float maxTurnSpeed = 1000;
 	public float maxAngle = 90;
+
+	public float smoothMoveTime = .015f;
+	public float maxMoveSpeed = 50;
+	public float snapDistance = 0.15f;
+
+	float turnVelocity = 0;
+	Vector2 moveVelocity = Vector2.zero;
 
 	Point lastPoint;
 	Point nextPoint;
@@ -42,7 +50,7 @@ public class TankTouch : MonoBehaviour {
 			if (touchState == TouchState.IDLE) {
 				foreach (Touch touch in Input.touches) {
 					if (touchState == TouchState.IDLE && touch.phase == TouchPhase.Began) {
-						Vector3 touchPos = cam.ScreenToWorldPoint(touch.position);
+						Vector2 touchPos = cam.ScreenToWorldPoint(touch.position);
 
 						float fireButtonDist = Vector2.Distance(touchPos, transform.position);
 
@@ -74,11 +82,13 @@ public class TankTouch : MonoBehaviour {
 							fingerId = -1;
 						}
 						else if (touch.phase == TouchPhase.Moved) {
+							Vector2 touchPos = cam.ScreenToWorldPoint(touch.position);
+
 							if (touchState == TouchState.TURNING) {
-								TurnTank(cam.ScreenToWorldPoint(touch.position));
+								TurnTank(touchPos);
 							}
 							else if (touchState == TouchState.MOVING) {
-								MoveTank(cam.ScreenToWorldPoint(touch.position));
+								MoveTank(touchPos);
 							}
 						}
 					}
@@ -87,15 +97,19 @@ public class TankTouch : MonoBehaviour {
 		}
 	}
 
-	void TurnTank(Vector2 targetPos) {
-		float targetAngle = Vector2.SignedAngle(Vector2.up, targetPos - (Vector2)transform.position);
+	void TurnTank(Vector2 touchPos) {
+		float targetAngle = Vector2.SignedAngle(Vector2.up, touchPos - (Vector2)transform.position);
+		float smoothAngle = Mathf.SmoothDampAngle(gun.transform.localEulerAngles.z, targetAngle,
+			ref turnVelocity, smoothTurnTime, maxTurnSpeed);
+		smoothAngle = (smoothAngle + 180) % 360 - 180;
+
 		gun.transform.localEulerAngles = new Vector3(0, 0,
-			Mathf.Clamp(targetAngle, -maxAngle, maxAngle));
+			Mathf.Clamp(smoothAngle, -maxAngle, maxAngle));
 	}
 
-	void MoveTank(Vector2 targetPos) {
+	void MoveTank(Vector2 touchPos) {
 		Vector2 handlePos = transform.TransformPoint(moveHandleOffset);
-		Vector2 deltaPos = targetPos - handlePos;
+		Vector2 deltaPos = touchPos - handlePos;
 
 		if (atPoint) {
 			float minAngle = 360;
@@ -113,15 +127,19 @@ public class TankTouch : MonoBehaviour {
 		Vector2 lastPointDelta = transform.position - lastPoint.position;
 		float moveDist = Mathf.Clamp(Vector2.Dot(deltaPos, nextPointDelta.normalized),
 			-lastPointDelta.magnitude, nextPointDelta.magnitude);
-		Vector2 move = nextPointDelta.normalized * moveDist;
-		transform.position += (Vector3)move;
+
+		Vector2 targetPos = (Vector2)transform.position + nextPointDelta.normalized * moveDist;
+		Vector2 smoothPos = Vector2.SmoothDamp((Vector2)transform.position, targetPos,
+			ref moveVelocity, smoothMoveTime, maxMoveSpeed);
 
 		foreach (Point point in grid.points.Values) {
-			if (Vector2.Distance(transform.position, point.position) <= snapDistance) {
-				transform.position = new Vector3(point.position.x, point.position.y, transform.position.z);
+			if (Vector2.Distance(smoothPos, point.position) <= snapDistance) {
+				smoothPos = new Vector2(point.position.x, point.position.y);
 				lastPoint = point;
 				atPoint = true;
 			}
 		}
+
+		transform.position = new Vector3(smoothPos.x, smoothPos.y, transform.position.z);
 	}
 }
