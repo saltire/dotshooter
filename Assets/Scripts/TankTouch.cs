@@ -48,45 +48,37 @@ public class TankTouch : MonoBehaviour {
 
 	void Update() {
 		if (Input.touchCount > 0) {
-			if (touchState == TouchState.IDLE) {
-				foreach (Touch touch in Input.touches) {
-					if (touchState == TouchState.IDLE && touch.phase == TouchPhase.Began) {
-						Vector2 touchPos = cam.ScreenToWorldPoint(touch.position);
-						touchStartLocalPos = touchPos - (Vector2)transform.position;
-						float touchStartAngle = Vector2.SignedAngle(touchStartLocalPos, Vector2.up);
-						touchStartAngleOffset = gun.transform.localEulerAngles.z +
-							Vector2.SignedAngle(touchStartLocalPos, Vector2.up);
+			foreach (Touch touch in Input.touches) {
+				Vector2 touchPos = cam.ScreenToWorldPoint(touch.position);
+				Vector2 localTouchPos = touchPos - (Vector2)transform.position;
 
-						if (fireTrigger.OverlapPoint(touchPos)) {
-							Debug.Log("FIRE!");
-						}
-						else if (moveTrigger.OverlapPoint(touchPos)) {
-							touchState = TouchState.MOVING;
-							fingerId = touch.fingerId;
-						}
-						else if (turnTrigger.OverlapPoint(touchPos)) {
-							touchState = TouchState.TURNING;
-							fingerId = touch.fingerId;
-						}
+				if (touchState == TouchState.IDLE && touch.phase == TouchPhase.Began) {
+					if (fireTrigger.OverlapPoint(touchPos)) {
+						Debug.Log("FIRE!");
+					}
+					else if (moveTrigger.OverlapPoint(touchPos)) {
+						touchState = TouchState.MOVING;
+						touchStartLocalPos = localTouchPos;
+						fingerId = touch.fingerId;
+					}
+					else if (turnTrigger.OverlapPoint(touchPos)) {
+						touchState = TouchState.TURNING;
+						touchStartAngleOffset = gun.transform.localEulerAngles.z +
+							Vector2.SignedAngle(localTouchPos, Vector2.up);
+						fingerId = touch.fingerId;
 					}
 				}
-			}
-			else {
-				foreach (Touch touch in Input.touches) {
-					if (touch.fingerId == fingerId) {
-						if (touch.phase == TouchPhase.Ended) {
-							touchState = TouchState.IDLE;
-							fingerId = -1;
+			  else if (touchState != TouchState.IDLE && touch.fingerId == fingerId) {
+					if (touch.phase == TouchPhase.Ended) {
+						touchState = TouchState.IDLE;
+						fingerId = -1;
+					}
+					else {
+						if (touchState == TouchState.TURNING && turnTrigger.OverlapPoint(touchPos)) {
+							TurnTank(localTouchPos);
 						}
-						else {
-							Vector2 localTouchPos = cam.ScreenToWorldPoint(touch.position) - transform.position;
-
-							if (touchState == TouchState.TURNING) {
-								TurnTank(localTouchPos);
-							}
-							else if (touchState == TouchState.MOVING) {
-								MoveTank(localTouchPos);
-							}
+						else if (touchState == TouchState.MOVING) {
+							MoveTank(localTouchPos);
 						}
 					}
 				}
