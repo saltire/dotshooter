@@ -25,6 +25,40 @@ public class GridSpawner : MonoBehaviour {
 
 	Quaternion right = Quaternion.Euler(0, 0, -90);
 
+	public void Awake() {
+		SpawnGrid();
+
+		points = new Dictionary<Vector2Int, Point>();
+
+		foreach (GameObject pointObj in GameObject.FindGameObjectsWithTag("Point")) {
+			Vector2 pos = GetLocalGridPos(pointObj.transform.position);
+			Vector2Int posInt = new Vector2Int((int)pos.x, (int)pos.y);
+			points[posInt] = new Point() {
+				x = posInt.x,
+				y = posInt.y,
+				position = pointObj.transform.position,
+				connections = new List<Point>(),
+			};
+		}
+
+		foreach (KeyValuePair<Vector2Int, Point> kv in points) {
+			Point point = kv.Value;
+
+			if (point.x > 0) {
+				point.connections.Add(points[new Vector2Int(point.x - 1, point.y)]);
+			}
+			if (point.x < columns - 1) {
+				point.connections.Add(points[new Vector2Int(point.x + 1, point.y)]);
+			}
+			if (point.y > 0) {
+				point.connections.Add(points[new Vector2Int(point.x, point.y - 1)]);
+			}
+			if (point.y < rows - 1) {
+				point.connections.Add(points[new Vector2Int(point.x, point.y + 1)]);
+			}
+		}
+	}
+
 	public void SpawnGrid() {
 		RemoveGrid();
 
@@ -59,38 +93,6 @@ public class GridSpawner : MonoBehaviour {
 	public void RemoveGrid() {
 		while (transform.childCount > 0) {
 			DestroyImmediate(transform.GetChild(0).gameObject);
-		}
-	}
-
-	public void Awake() {
-		points = new Dictionary<Vector2Int, Point>();
-
-		foreach (GameObject pointObj in GameObject.FindGameObjectsWithTag("Point")) {
-			Vector2 pos = GetLocalGridPos(pointObj.transform.position);
-			Vector2Int posInt = new Vector2Int((int)pos.x, (int)pos.y);
-			points[posInt] = new Point() {
-				x = posInt.x,
-				y = posInt.y,
-				position = pointObj.transform.position,
-				connections = new List<Point>(),
-			};
-		}
-
-		foreach (KeyValuePair<Vector2Int, Point> kv in points) {
-			Point point = kv.Value;
-
-			if (point.x > 0) {
-				point.connections.Add(points[new Vector2Int(point.x - 1, point.y)]);
-			}
-			if (point.x < columns - 1) {
-				point.connections.Add(points[new Vector2Int(point.x + 1, point.y)]);
-			}
-			if (point.y > 0) {
-				point.connections.Add(points[new Vector2Int(point.x, point.y - 1)]);
-			}
-			if (point.y < rows - 1) {
-				point.connections.Add(points[new Vector2Int(point.x, point.y + 1)]);
-			}
 		}
 	}
 

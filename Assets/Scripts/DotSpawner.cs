@@ -16,6 +16,10 @@ public class DotSpawner : MonoBehaviour {
 
 	public GameObject dotPrefab;
 
+	public void Awake() {
+		SpawnDots();
+	}
+
 	public void SpawnDots() {
 		RemoveDots();
 
