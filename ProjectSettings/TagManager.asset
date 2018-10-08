@@ -43,3 +43,15 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: projectiles
+    uniqueID: 1639924467
+    locked: 0
+  - name: targets
+    uniqueID: 3131836837
+    locked: 0
+  - name: tank bottom
+    uniqueID: 154762879
+    locked: 0
+  - name: tank top
+    uniqueID: 2720624229
+    locked: 0
