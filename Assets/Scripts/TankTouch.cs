@@ -9,14 +9,13 @@ enum TouchState {
 };
 
 public class TankTouch : MonoBehaviour {
-	public float fireButtonRadius = 0.3f;
-	public Vector2 turnHandleOffset;
-	public float turnHandleRadius = 0.3f;
-	public Vector2 moveHandleOffset;
-	public float moveHandleRadius = 0.3f;
+	public Transform tankBottom;
+	public Collider2D fireTrigger;
+	public Collider2D turnTrigger;
+	public Collider2D moveTrigger;
 
 	public float smoothTurnTime = .1f;
-	public float maxTurnSpeed = 1000;
+	public float maxTurnSpeed = 500;
 	public float maxAngle = 90;
 
 	public float smoothMoveTime = .015f;
@@ -31,6 +30,8 @@ public class TankTouch : MonoBehaviour {
 	bool atPoint = true;
 
 	TouchState touchState = TouchState.IDLE;
+	Vector2 touchStartLocalPos;
+	float touchStartAngleOffset;
 	int fingerId;
 
 	Camera cam;
@@ -51,24 +52,20 @@ public class TankTouch : MonoBehaviour {
 				foreach (Touch touch in Input.touches) {
 					if (touchState == TouchState.IDLE && touch.phase == TouchPhase.Began) {
 						Vector2 touchPos = cam.ScreenToWorldPoint(touch.position);
+						touchStartLocalPos = touchPos - (Vector2)transform.position;
+						float touchStartAngle = Vector2.SignedAngle(touchStartLocalPos, Vector2.up);
+						touchStartAngleOffset = gun.transform.localEulerAngles.z +
+							Vector2.SignedAngle(touchStartLocalPos, Vector2.up);
 
-						float fireButtonDist = Vector2.Distance(touchPos, transform.position);
-
-						float turnHandleDist = Vector2.Distance(touchPos,
-							gun.transform.TransformPoint(turnHandleOffset));
-
-						float moveHandleDist = Vector2.Distance(touchPos,
-							transform.TransformPoint(moveHandleOffset));
-
-						if (fireButtonDist < fireButtonRadius) {
+						if (fireTrigger.OverlapPoint(touchPos)) {
 							Debug.Log("FIRE!");
 						}
-						else if (turnHandleDist < turnHandleRadius) {
-							touchState = TouchState.TURNING;
+						else if (moveTrigger.OverlapPoint(touchPos)) {
+							touchState = TouchState.MOVING;
 							fingerId = touch.fingerId;
 						}
-						else if (moveHandleDist < moveHandleRadius) {
-							touchState = TouchState.MOVING;
+						else if (turnTrigger.OverlapPoint(touchPos)) {
+							touchState = TouchState.TURNING;
 							fingerId = touch.fingerId;
 						}
 					}
@@ -81,14 +78,14 @@ public class TankTouch : MonoBehaviour {
 							touchState = TouchState.IDLE;
 							fingerId = -1;
 						}
-						else if (touch.phase == TouchPhase.Moved) {
-							Vector2 touchPos = cam.ScreenToWorldPoint(touch.position);
+						else {
+							Vector2 localTouchPos = cam.ScreenToWorldPoint(touch.position) - transform.position;
 
 							if (touchState == TouchState.TURNING) {
-								TurnTank(touchPos);
+								TurnTank(localTouchPos);
 							}
 							else if (touchState == TouchState.MOVING) {
-								MoveTank(touchPos);
+								MoveTank(localTouchPos);
 							}
 						}
 					}
@@ -97,8 +94,9 @@ public class TankTouch : MonoBehaviour {
 		}
 	}
 
-	void TurnTank(Vector2 touchPos) {
-		float targetAngle = Vector2.SignedAngle(Vector2.up, touchPos - (Vector2)transform.position);
+	void TurnTank(Vector2 localTouchPos) {
+		float touchAngle = Vector2.SignedAngle(localTouchPos, Vector2.up);
+		float targetAngle = touchStartAngleOffset - touchAngle;
 		float smoothAngle = Mathf.SmoothDampAngle(gun.transform.localEulerAngles.z, targetAngle,
 			ref turnVelocity, smoothTurnTime, maxTurnSpeed);
 		smoothAngle = (smoothAngle + 180) % 360 - 180;
@@ -107,9 +105,8 @@ public class TankTouch : MonoBehaviour {
 			Mathf.Clamp(smoothAngle, -maxAngle, maxAngle));
 	}
 
-	void MoveTank(Vector2 touchPos) {
-		Vector2 handlePos = transform.TransformPoint(moveHandleOffset);
-		Vector2 deltaPos = touchPos - handlePos;
+	void MoveTank(Vector2 localTouchPos) {
+		Vector2 deltaPos = localTouchPos - touchStartLocalPos;
 
 		if (atPoint) {
 			float minAngle = 360;
