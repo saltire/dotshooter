@@ -14,47 +14,66 @@ public class TankTouch : MonoBehaviour {
 	public Collider2D turnTrigger;
 	public Collider2D moveTrigger;
 
+	TouchState touchState = TouchState.IDLE;
+	int fingerId;
+
+	public GameObject laserPrefab;
+	public Transform laserSpawnPoint;
+	public float laserCooldown = .5f;
+	GameObject laserBeam;
+	float laserCooldownRemaining = 0;
+	int targetMask;
+
 	public float smoothTurnTime = .1f;
 	public float maxTurnSpeed = 500;
 	public float maxAngle = 90;
+	float touchStartAngleOffset;
+	float turnVelocity = 0;
 
 	public float smoothMoveTime = .015f;
 	public float maxMoveSpeed = 50;
 	public float snapDistance = 0.15f;
-
-	float turnVelocity = 0;
-	Vector2 moveVelocity = Vector2.zero;
-
+	Vector2 touchStartLocalPos;
 	Point lastPoint;
 	Point nextPoint;
 	bool atPoint = true;
-
-	TouchState touchState = TouchState.IDLE;
-	Vector2 touchStartLocalPos;
-	float touchStartAngleOffset;
-	int fingerId;
+	Vector2 moveVelocity = Vector2.zero;
 
 	Camera cam;
 	GridSpawner grid;
-	GameObject gun;
 
 	void Start() {
 		cam = (Camera)FindObjectOfType(typeof(Camera));
 		grid = (GridSpawner)FindObjectOfType(typeof(GridSpawner));
-		gun = GameObject.FindGameObjectWithTag("Gun");
+
+		targetMask = LayerMask.GetMask("Targets");
 
 		lastPoint = grid.GetPointAtPos(transform.position);
 	}
 
 	void Update() {
+		if (laserCooldownRemaining > 0) {
+			laserCooldownRemaining -= Time.deltaTime;
+
+			if (laserCooldownRemaining > 0) {
+				Material mat = laserBeam.GetComponent<SpriteRenderer>().material;
+				Color newColor = mat.color;
+				newColor.a = laserCooldownRemaining / laserCooldown;
+				mat.color = newColor;
+			}
+			else {
+				Destroy(laserBeam);
+			}
+		}
+
 		if (Input.touchCount > 0) {
 			foreach (Touch touch in Input.touches) {
 				Vector2 touchPos = cam.ScreenToWorldPoint(touch.position);
 				Vector2 localTouchPos = touchPos - (Vector2)transform.position;
 
 				if (touchState == TouchState.IDLE && touch.phase == TouchPhase.Began) {
-					if (fireTrigger.OverlapPoint(touchPos)) {
-						Debug.Log("FIRE!");
+					if (fireTrigger.OverlapPoint(touchPos) && laserCooldownRemaining <= 0) {
+						Fire();
 					}
 					else if (moveTrigger.OverlapPoint(touchPos)) {
 						touchState = TouchState.MOVING;
@@ -63,7 +82,7 @@ public class TankTouch : MonoBehaviour {
 					}
 					else if (turnTrigger.OverlapPoint(touchPos)) {
 						touchState = TouchState.TURNING;
-						touchStartAngleOffset = gun.transform.localEulerAngles.z +
+						touchStartAngleOffset = tankBottom.localEulerAngles.z +
 							Vector2.SignedAngle(localTouchPos, Vector2.up);
 						fingerId = touch.fingerId;
 					}
@@ -86,14 +105,28 @@ public class TankTouch : MonoBehaviour {
 		}
 	}
 
+	void Fire() {
+		laserBeam = Instantiate<GameObject>(laserPrefab, laserSpawnPoint.position,
+			laserSpawnPoint.rotation);
+		laserBeam.transform.parent = laserSpawnPoint;
+		laserCooldownRemaining = laserCooldown;
+
+		RaycastHit2D[] hits = Physics2D.RaycastAll(laserSpawnPoint.position,
+			laserSpawnPoint.rotation * Vector3.up, Mathf.Infinity, targetMask);
+
+		foreach (RaycastHit2D hit in hits) {
+			hit.transform.GetComponent<TargetScript>().Explode();
+		}
+	}
+
 	void TurnTank(Vector2 localTouchPos) {
 		float touchAngle = Vector2.SignedAngle(localTouchPos, Vector2.up);
 		float targetAngle = touchStartAngleOffset - touchAngle;
-		float smoothAngle = Mathf.SmoothDampAngle(gun.transform.localEulerAngles.z, targetAngle,
+		float smoothAngle = Mathf.SmoothDampAngle(tankBottom.localEulerAngles.z, targetAngle,
 			ref turnVelocity, smoothTurnTime, maxTurnSpeed);
 		smoothAngle = (smoothAngle + 180) % 360 - 180;
 
-		gun.transform.localEulerAngles = new Vector3(0, 0,
+		tankBottom.localEulerAngles = new Vector3(0, 0,
 			Mathf.Clamp(smoothAngle, -maxAngle, maxAngle));
 	}
 
