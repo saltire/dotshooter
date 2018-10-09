@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class TargetScript : MonoBehaviour {
+	public Counter counter { get; set; }
+
 	public void SetColor(Color color) {
 		GetComponent<SpriteRenderer>().color = color;
 
@@ -15,5 +17,7 @@ public class TargetScript : MonoBehaviour {
 		GetComponent<Collider2D>().enabled = false;
 
 		GetComponent<ParticleSystem>().Play();
+
+		counter.IncrementCount(-1);
 	}
 }

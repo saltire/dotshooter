@@ -1,11 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class TargetSpawner : MonoBehaviour {
 	public int rows = 5;
 	public int columns = 9;
 	public float spacing = 0.5f;
+	public Counter counter;
 
 	public Color[] colors = {
 		Color.red,
@@ -16,8 +18,12 @@ public class TargetSpawner : MonoBehaviour {
 
 	public GameObject targetPrefab;
 
-	public void Awake() {
+	void Awake() {
 		SpawnTargets();
+	}
+
+	void Start() {
+		counter.SetCount(rows * columns);
 	}
 
 	public void SpawnTargets() {
@@ -32,7 +38,9 @@ public class TargetSpawner : MonoBehaviour {
 					origin + new Vector3(x * spacing, y * spacing), Quaternion.identity);
 				target.transform.parent = transform;
 
-				target.GetComponent<TargetScript>().SetColor(colors[Random.Range(0, colors.Length)]);
+				TargetScript targetScript = target.GetComponent<TargetScript>();
+				targetScript.SetColor(colors[Random.Range(0, colors.Length)]);
+				targetScript.counter = counter;
 			}
 		}
 	}

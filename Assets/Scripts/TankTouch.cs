@@ -13,6 +13,7 @@ public class TankTouch : MonoBehaviour {
 	public Collider2D fireTrigger;
 	public Collider2D turnTrigger;
 	public Collider2D moveTrigger;
+	public Counter shotCounter;
 
 	TouchState touchState = TouchState.IDLE;
 	int fingerId;
@@ -117,6 +118,8 @@ public class TankTouch : MonoBehaviour {
 		foreach (RaycastHit2D hit in hits) {
 			hit.transform.GetComponent<TargetScript>().Explode();
 		}
+
+		shotCounter.IncrementCount(1);
 	}
 
 	void TurnTank(Vector2 localTouchPos) {
