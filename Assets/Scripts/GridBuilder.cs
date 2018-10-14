@@ -43,7 +43,9 @@ public class GridBuilder : MonoBehaviour {
 		}
 
 		// Move the tank to the starting point.
-		tank.transform.position = startingPoint.transform.position;
+		tank.transform.position = new Vector3(
+			startingPoint.transform.position.x, startingPoint.transform.position.y,
+			tank.transform.position.z);
 	}
 
 	public List<Point> GetAllPoints() {

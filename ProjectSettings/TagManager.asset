@@ -7,6 +7,7 @@ TagManager:
   - Point
   - Gun
   - Line
+  - Arrow
   layers:
   - Default
   - TransparentFX
