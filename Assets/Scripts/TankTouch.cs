@@ -41,11 +41,11 @@ public class TankTouch : MonoBehaviour {
 	Vector2 moveVelocity = Vector2.zero;
 
 	Camera cam;
-	GridSpawner grid;
+	GridBuilder grid;
 
 	void Start() {
 		cam = (Camera)FindObjectOfType(typeof(Camera));
-		grid = (GridSpawner)FindObjectOfType(typeof(GridSpawner));
+		grid = (GridBuilder)FindObjectOfType(typeof(GridBuilder));
 
 		targetMask = LayerMask.GetMask("Targets");
 
@@ -157,7 +157,7 @@ public class TankTouch : MonoBehaviour {
 		Vector2 smoothPos = Vector2.SmoothDamp((Vector2)transform.position, targetPos,
 			ref moveVelocity, smoothMoveTime, maxMoveSpeed);
 
-		foreach (Point point in grid.points.Values) {
+		foreach (Point point in grid.GetAllPoints()) {
 			if (Vector2.Distance(smoothPos, point.position) <= snapDistance) {
 				smoothPos = new Vector2(point.position.x, point.position.y);
 				lastPoint = point;
