@@ -86,16 +86,21 @@ public class TankTouch : MonoBehaviour {
 						Fire();
 					}
 					else if (touchingArrow != null) {
+						// Start moving.
 						touchState = TouchState.MOVING;
 						touchStartLocalPos = localTouchPos;
 						fingerId = touch.fingerId;
 						currentDirection = touchingArrow.point.position - transform.position;
 					}
 					else if (turnTrigger.OverlapPoint(touchPos)) {
+						// Start turning.
 						touchState = TouchState.TURNING;
 						touchStartAngleOffset = tankBottom.localEulerAngles.z +
 							Vector2.SignedAngle(localTouchPos, Vector2.up);
 						fingerId = touch.fingerId;
+
+						// Hide arrows while turning.
+						ClearArrows();
 					}
 				}
 			  else if (touchState != TouchState.IDLE && touch.fingerId == fingerId) {
@@ -195,12 +200,15 @@ public class TankTouch : MonoBehaviour {
 		UpdateArrows();
 	}
 
-	void UpdateArrows() {
-		// Clear all arrows.
+	void ClearArrows() {
 		foreach (Arrow arrow in arrows) {
 			Destroy(arrow.gameObject);
 		}
 		arrows = new List<Arrow>();
+	}
+
+	void UpdateArrows() {
+		ClearArrows();
 
 		// If at a point, show arrows for all connected points.
 		// Otherwise, show arrows to the two adjacent points.
