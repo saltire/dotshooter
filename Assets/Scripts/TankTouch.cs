@@ -11,6 +11,7 @@ enum TouchState {
 
 public class TankTouch : MonoBehaviour {
 	public Transform tankBottom;
+	public SpriteRenderer turnCircle;
 	public Collider2D fireTrigger;
 	public Collider2D turnTrigger;
 	public GameObject arrowPrefab;
@@ -38,6 +39,7 @@ public class TankTouch : MonoBehaviour {
 	public float smoothMoveTime = .015f;
 	public float maxMoveSpeed = 50;
 	public float snapDistance = 0.15f;
+	public float arrowDistance = 1.25f;
 	Vector2 touchStartLocalPos;
 	Point lastPoint;
 	Point nextPoint;
@@ -101,6 +103,9 @@ public class TankTouch : MonoBehaviour {
 						touchStartLocalPos = localTouchPos;
 						fingerId = touch.fingerId;
 						currentDirection = touchingArrow.point.position - transform.position;
+
+						// Dim turning circle while moving.
+						SetSpriteAlpha(turnCircle, .25f);
 					}
 					else if (turnTrigger.OverlapPoint(touchPos)) {
 						// Start turning.
@@ -109,8 +114,10 @@ public class TankTouch : MonoBehaviour {
 							Vector2.SignedAngle(localTouchPos, Vector2.up);
 						fingerId = touch.fingerId;
 
-						// Hide arrows while turning.
-						ClearArrows();
+						// Dim arrows while turning.
+						foreach (Arrow arrow in arrows) {
+							SetSpriteAlpha(arrow.GetComponent<SpriteRenderer>(), .25f);
+						}
 					}
 				}
 			  else if (touchState != TouchState.IDLE && touch.fingerId == fingerId) {
@@ -118,9 +125,10 @@ public class TankTouch : MonoBehaviour {
 						touchState = TouchState.IDLE;
 						fingerId = -1;
 
-						// Reset movement.
+						// Reset movement and UI.
 						currentDirection = Vector2.zero;
 						UpdateArrows();
+						SetSpriteAlpha(turnCircle, 1);
 					}
 					else {
 						if (touchState == TouchState.TURNING && turnTrigger.OverlapPoint(touchPos)) {
@@ -258,8 +266,9 @@ public class TankTouch : MonoBehaviour {
 		foreach (Point arrowPoint in arrowPoints) {
 			// Create an arrow pointing to this point.
 			float pointAngle = Vector2.SignedAngle(Vector2.up, arrowPoint.position - transform.position);
-			GameObject arrow = Instantiate(arrowPrefab, transform.position,
-				Quaternion.Euler(0, 0, pointAngle));
+			GameObject arrow = Instantiate(arrowPrefab,
+				transform.position + new Vector3(0, arrowDistance, 0), Quaternion.identity);
+			arrow.transform.RotateAround(transform.position, Vector3.forward, pointAngle);
 			arrow.transform.parent = transform;
 			Arrow arrowScript = arrow.GetComponent<Arrow>();
 			arrowScript.point = arrowPoint;
@@ -270,9 +279,15 @@ public class TankTouch : MonoBehaviour {
 				Vector2 pointDirection = arrowPoint.position - transform.position;
 				float dirDiff = Vector2.Angle(currentDirection, pointDirection);
 				if (dirDiff != 0 && dirDiff != 180) {
-					arrow.GetComponent<SpriteRenderer>().color -= new Color(0, 0, 0, .75f);
+					SetSpriteAlpha(arrow.GetComponent<SpriteRenderer>(), .25f);
 				}
 			}
 		}
+	}
+
+	void SetSpriteAlpha(SpriteRenderer spriter, float alpha) {
+		Color newColor = spriter.color;
+		newColor.a = alpha;
+		spriter.color = newColor;
 	}
 }
