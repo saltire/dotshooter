@@ -20,6 +20,7 @@ public class TankTouch : MonoBehaviour {
 	int fingerId;
 
 	public GameObject laserPrefab;
+	public GameObject laserBouncePrefab;
 	public Transform laserSpawnPoint;
 	public float laserCooldown = .5f;
 	public float maxLaserDistance = 100;
@@ -171,6 +172,9 @@ public class TankTouch : MonoBehaviour {
 			Vector2 bounceDir = Vector2.Reflect(direction, hit.normal);
 			// Move the reflection point a bit to make sure we are outside of the collider.
 			lasers = FireLaser(hit.point + bounceDir * .01f, bounceDir, totalDistance + hit.distance);
+
+			// Fire off some particles from the bounce point.
+			Instantiate(laserBouncePrefab, hit.point, Quaternion.FromToRotation(Vector2.up, hit.normal));
 		}
 
 		lasers.Add(laser);
