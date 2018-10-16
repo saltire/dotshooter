@@ -22,9 +22,11 @@ public class TankTouch : MonoBehaviour {
 	public GameObject laserPrefab;
 	public Transform laserSpawnPoint;
 	public float laserCooldown = .5f;
-	GameObject laserBeam;
+	public float maxLaserDistance = 100;
+	List<GameObject> laserBeams;
 	float laserCooldownRemaining = 0;
 	int targetMask;
+	int surfaceMask;
 
 	public float smoothTurnTime = .1f;
 	public float maxTurnSpeed = 500;
@@ -51,6 +53,7 @@ public class TankTouch : MonoBehaviour {
 		grid = (GridBuilder)FindObjectOfType(typeof(GridBuilder));
 
 		targetMask = LayerMask.GetMask("Targets");
+		surfaceMask = LayerMask.GetMask("Surfaces");
 
 		lastPoint = grid.GetPointAtPos(transform.position);
 
@@ -63,13 +66,19 @@ public class TankTouch : MonoBehaviour {
 			laserCooldownRemaining -= Time.deltaTime;
 
 			if (laserCooldownRemaining > 0) {
-				Material mat = laserBeam.GetComponent<SpriteRenderer>().material;
+				Material mat = laserBeams[0].GetComponent<SpriteRenderer>().material;
 				Color newColor = mat.color;
 				newColor.a = laserCooldownRemaining / laserCooldown;
 				mat.color = newColor;
+
+				foreach (GameObject laserBeam in laserBeams) {
+					laserBeam.GetComponent<SpriteRenderer>().material = mat;
+				}
 			}
 			else {
-				Destroy(laserBeam);
+				foreach (GameObject laserBeam in laserBeams) {
+					Destroy(laserBeam);
+				}
 			}
 		}
 
@@ -126,19 +135,46 @@ public class TankTouch : MonoBehaviour {
 	}
 
 	void Fire() {
-		laserBeam = Instantiate<GameObject>(laserPrefab, laserSpawnPoint.position,
-			laserSpawnPoint.rotation);
-		laserBeam.transform.parent = laserSpawnPoint;
-		laserCooldownRemaining = laserCooldown;
+		// Get a list of laser beam segments (more than one if the laser bounced off a surface).
+		laserBeams = FireLaser(laserSpawnPoint.position, laserSpawnPoint.rotation * Vector3.up);
 
-		RaycastHit2D[] hits = Physics2D.RaycastAll(laserSpawnPoint.position,
-			laserSpawnPoint.rotation * Vector3.up, Mathf.Infinity, targetMask);
+		foreach (GameObject laserBeam in laserBeams) {
+			laserBeam.transform.parent = laserSpawnPoint;
 
-		foreach (RaycastHit2D hit in hits) {
-			hit.transform.GetComponent<TargetScript>().Explode();
+			// Explode all targets this laser beam touches.
+			RaycastHit2D[] hits = Physics2D.RaycastAll(laserBeam.transform.position,
+				laserBeam.transform.rotation * Vector3.up, laserBeam.transform.localScale.y, targetMask);
+			foreach (RaycastHit2D hit in hits) {
+				hit.transform.GetComponent<TargetScript>().Explode();
+			}
 		}
 
+		laserCooldownRemaining = laserCooldown;
 		shotCounter.IncrementCount(1);
+	}
+
+	List<GameObject> FireLaser(Vector2 origin, Vector2 direction, float totalDistance = 0) {
+		GameObject laser = Instantiate(laserPrefab, origin,
+			Quaternion.FromToRotation(Vector2.up, direction));
+
+		List<GameObject> lasers;
+
+		RaycastHit2D hit = Physics2D.Raycast(origin, direction, Mathf.Infinity, surfaceMask);
+		if (hit.collider == null || totalDistance > maxLaserDistance) {
+			// No hits - laser will continue to infinity (or max distance reached).
+			// This is the final laser segment, so return a new list.
+			lasers = new List<GameObject>();
+		}
+		else {
+			// Hit a surface - scale laser to match the distance to the surface, and get list of bounces.
+			laser.transform.localScale = new Vector3(1, hit.distance, 1);
+			Vector2 bounceDir = Vector2.Reflect(direction, hit.normal);
+			// Move the reflection point a bit to make sure we are outside of the collider.
+			lasers = FireLaser(hit.point + bounceDir * .01f, bounceDir, totalDistance + hit.distance);
+		}
+
+		lasers.Add(laser);
+		return lasers;
 	}
 
 	void TurnTank(Vector2 localTouchPos) {

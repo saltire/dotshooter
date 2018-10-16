@@ -13,11 +13,14 @@ public class TargetScript : MonoBehaviour {
 	}
 
 	public void Explode() {
-		GetComponent<SpriteRenderer>().enabled = false;
-		GetComponent<Collider2D>().enabled = false;
+		SpriteRenderer spriter = GetComponent<SpriteRenderer>();
+		if (spriter.enabled) {
+			spriter.enabled = false;
+			GetComponent<Collider2D>().enabled = false;
 
-		GetComponent<ParticleSystem>().Play();
+			GetComponent<ParticleSystem>().Play();
 
-		counter.IncrementCount(-1);
+			counter.IncrementCount(-1);
+		}
 	}
 }
