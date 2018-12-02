@@ -15,7 +15,6 @@ public class TankTouch : MonoBehaviour {
 	public Collider2D fireTrigger;
 	public Collider2D turnTrigger;
 	public GameObject arrowPrefab;
-	public Counter shotCounter;
 
 	TouchState touchState = TouchState.IDLE;
 	int fingerId;
@@ -51,11 +50,13 @@ public class TankTouch : MonoBehaviour {
 	Camera cam;
 	PathBuilder paths;
 	TargetSpawner targets;
+	UIManager ui; 
 
 	void Awake() {
 		cam = (Camera)FindObjectOfType(typeof(Camera));
 		paths = (PathBuilder)FindObjectOfType(typeof(PathBuilder));
 		targets = (TargetSpawner)FindObjectOfType(typeof(TargetSpawner));
+		ui = (UIManager)FindObjectOfType(typeof(UIManager));
 
 		targetMask = LayerMask.GetMask("Targets");
 		surfaceMask = LayerMask.GetMask("Surfaces");
@@ -158,7 +159,7 @@ public class TankTouch : MonoBehaviour {
 		}
 
 		laserCooldownRemaining = laserCooldown;
-		shotCounter.IncrementCount(1);
+		ui.shotCounter.IncrementCount(1);
 	}
 
 	List<GameObject> FireLaser(Vector2 origin, Vector2 direction, float totalDistance = 0) {

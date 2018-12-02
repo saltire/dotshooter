@@ -12,12 +12,14 @@ public class TargetSpawner : MonoBehaviour {
 
 	public GameObject targetPrefab;
 
-	public Counter targetCounter;
-	public Counter shotCounter;
-	public GameObject successPanel;
+	UIManager ui;
 
 	List<Vector2> targetPositions = new List<Vector2>();
 	List<GameObject> activeTargets = new List<GameObject>();
+
+	void Awake() {
+		ui = (UIManager)FindObjectOfType(typeof(UIManager));
+	}
 
 	public void LoadTargetTemplate(GameObject templatePrefab) {
 		// Get the positions of all placeholders in the template, and remove the template.
@@ -54,18 +56,18 @@ public class TargetSpawner : MonoBehaviour {
 		}
 
 		// Reset the UI counters.
-		targetCounter.SetCount(activeTargets.Count);
-		shotCounter.SetCount(0);
+		ui.targetCounter.SetCount(activeTargets.Count);
+		ui.shotCounter.SetCount(0);
 	}
 
 	public void DestroyTarget(TargetScript target) {
 		target.Explode();
 
 		activeTargets.Remove(target.gameObject);
-		targetCounter.IncrementCount(-1);
+		ui.targetCounter.IncrementCount(-1);
 
 		if (activeTargets.Count == 0) {
-			successPanel.SetActive(true);
+			ui.successPanel.SetActive(true);
 		}
 	}
 }
