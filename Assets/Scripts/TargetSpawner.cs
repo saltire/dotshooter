@@ -1,13 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class TargetSpawner : MonoBehaviour {
-	public int rows = 5;
-	public int columns = 9;
-	public float spacing = 0.5f;
-
 	public Color[] colors = {
 		Color.red,
 		Color.yellow,
@@ -21,13 +16,16 @@ public class TargetSpawner : MonoBehaviour {
 	public Counter shotCounter;
 	public GameObject successPanel;
 
+	List<Vector2> targetPositions = new List<Vector2>();
 	List<GameObject> activeTargets = new List<GameObject>();
 
 	void Awake() {
-		// Remove test targets (will remove these eventually).
-		while (transform.childCount > 0) {
-			DestroyImmediate(transform.GetChild(0).gameObject);
+		// Get the positions of all placeholders in the template, and remove the template.
+		TargetTemplate template = gameObject.GetComponentInChildren<TargetTemplate>();
+		foreach (Transform placeholder in template.transform) {
+			targetPositions.Add(placeholder.position);
 		}
+		Destroy(template.gameObject);
 	}
 
 	void Start() {
@@ -35,24 +33,24 @@ public class TargetSpawner : MonoBehaviour {
 	}
 
 	public void SpawnTargets() {
-		RemoveTargets();
+		// Remove any existing targets.
+		foreach (GameObject target in activeTargets) {
+			Destroy(target);
+		}
+		activeTargets.Clear();
+	
+		// Spawn targets at the positions of each placeholder.
+		foreach (Vector2 pos in targetPositions) {
+			GameObject target = Instantiate<GameObject>(targetPrefab, pos, Quaternion.identity);
+			target.transform.parent = transform;
 
-		Vector3 origin = transform.position -
-			new Vector3((float)(columns - 1) / 2 * spacing, (float)(rows - 1) / 2 * spacing);
+			TargetScript targetScript = target.GetComponent<TargetScript>();
+			targetScript.SetColor(colors[Random.Range(0, colors.Length)]);
 
-		for (int x = 0; x < columns; x++) {
-			for (int y = 0; y < rows; y++) {
-				GameObject target = Instantiate<GameObject>(targetPrefab,
-					origin + new Vector3(x * spacing, y * spacing), Quaternion.identity);
-				target.transform.parent = transform;
-
-				TargetScript targetScript = target.GetComponent<TargetScript>();
-				targetScript.SetColor(colors[Random.Range(0, colors.Length)]);
-
-				activeTargets.Add(target);
-			}
+			activeTargets.Add(target);
 		}
 
+		// Reset the UI counters.
 		targetCounter.SetCount(activeTargets.Count);
 		shotCounter.SetCount(0);
 	}
@@ -66,13 +64,5 @@ public class TargetSpawner : MonoBehaviour {
 		if (activeTargets.Count == 0) {
 			successPanel.SetActive(true);
 		}
-	}
-
-	public void RemoveTargets() {
-		foreach (GameObject target in activeTargets) {
-			Destroy(target);
-		}
-		
-		activeTargets.Clear();
 	}
 }
