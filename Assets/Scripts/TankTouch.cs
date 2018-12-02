@@ -50,18 +50,20 @@ public class TankTouch : MonoBehaviour {
 
 	Camera cam;
 	GridBuilder grid;
+	TargetSpawner spawner;
 
-	void Start() {
+	void Awake() {
 		cam = (Camera)FindObjectOfType(typeof(Camera));
 		grid = (GridBuilder)FindObjectOfType(typeof(GridBuilder));
+		spawner = (TargetSpawner)FindObjectOfType(typeof(TargetSpawner));
 
 		targetMask = LayerMask.GetMask("Targets");
 		surfaceMask = LayerMask.GetMask("Surfaces");
 
-		lastPoint = grid.GetPointAtPos(transform.position);
+		// lastPoint = grid.GetPointAtPos(transform.position);
 
 		arrows = new List<Arrow>();
-		UpdateArrows();
+		// UpdateArrows();
 	}
 
 	void Update() {
@@ -154,7 +156,7 @@ public class TankTouch : MonoBehaviour {
 			RaycastHit2D[] hits = Physics2D.RaycastAll(laserBeam.transform.position,
 				laserBeam.transform.rotation * Vector3.up, laserBeam.transform.localScale.y, targetMask);
 			foreach (RaycastHit2D hit in hits) {
-				hit.transform.GetComponent<TargetScript>().Explode();
+				spawner.DestroyTarget(hit.transform.GetComponent<TargetScript>());
 			}
 		}
 
@@ -245,6 +247,16 @@ public class TankTouch : MonoBehaviour {
 		}
 
 		transform.position = new Vector3(smoothPos.x, smoothPos.y, transform.position.z);
+		UpdateArrows();
+	}
+
+	public void MoveToPoint(Point point) {
+		lastPoint = point;
+		atLastPoint = true;
+
+		transform.position = new Vector3(point.position.x, point.position.y, transform.position.z);
+		tankBottom.localEulerAngles = Vector3.zero;
+
 		UpdateArrows();
 	}
 

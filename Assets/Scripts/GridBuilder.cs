@@ -11,7 +11,7 @@ public struct Point {
 
 public class GridBuilder : MonoBehaviour {
 	public Transform startingPoint;
-	public Transform tank;
+	public TankTouch tank;
 
 	Dictionary<Vector2, Point> points;
 
@@ -41,11 +41,14 @@ public class GridBuilder : MonoBehaviour {
 			srcPoint.connections.Add(destPoint);
 			destPoint.connections.Add(srcPoint);
 		}
+	}
 
-		// Move the tank to the starting point.
-		tank.transform.position = new Vector3(
-			startingPoint.transform.position.x, startingPoint.transform.position.y,
-			tank.transform.position.z);
+	void Start() {
+		MoveTankToStart();
+	}
+
+	public void MoveTankToStart() {
+		tank.MoveToPoint(GetPointAtPos(startingPoint.position));
 	}
 
 	public List<Point> GetAllPoints() {

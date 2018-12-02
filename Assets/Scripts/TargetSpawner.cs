@@ -7,7 +7,6 @@ public class TargetSpawner : MonoBehaviour {
 	public int rows = 5;
 	public int columns = 9;
 	public float spacing = 0.5f;
-	public Counter counter;
 
 	public Color[] colors = {
 		Color.red,
@@ -18,12 +17,21 @@ public class TargetSpawner : MonoBehaviour {
 
 	public GameObject targetPrefab;
 
+	public Counter targetCounter;
+	public Counter shotCounter;
+	public GameObject successPanel;
+
+	List<GameObject> activeTargets = new List<GameObject>();
+
 	void Awake() {
-		SpawnTargets();
+		// Remove test targets (will remove these eventually).
+		while (transform.childCount > 0) {
+			DestroyImmediate(transform.GetChild(0).gameObject);
+		}
 	}
 
 	void Start() {
-		counter.SetCount(rows * columns);
+		SpawnTargets();
 	}
 
 	public void SpawnTargets() {
@@ -40,14 +48,31 @@ public class TargetSpawner : MonoBehaviour {
 
 				TargetScript targetScript = target.GetComponent<TargetScript>();
 				targetScript.SetColor(colors[Random.Range(0, colors.Length)]);
-				targetScript.counter = counter;
+
+				activeTargets.Add(target);
 			}
+		}
+
+		targetCounter.SetCount(activeTargets.Count);
+		shotCounter.SetCount(0);
+	}
+
+	public void DestroyTarget(TargetScript target) {
+		target.Explode();
+
+		activeTargets.Remove(target.gameObject);
+		targetCounter.IncrementCount(-1);
+
+		if (activeTargets.Count == 0) {
+			successPanel.SetActive(true);
 		}
 	}
 
 	public void RemoveTargets() {
-		while (transform.childCount > 0) {
-			DestroyImmediate(transform.GetChild(0).gameObject);
+		foreach (GameObject target in activeTargets) {
+			Destroy(target);
 		}
+		
+		activeTargets.Clear();
 	}
 }
