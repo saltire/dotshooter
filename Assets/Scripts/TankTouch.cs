@@ -49,21 +49,18 @@ public class TankTouch : MonoBehaviour {
 	List<Arrow> arrows;
 
 	Camera cam;
-	GridBuilder grid;
-	TargetSpawner spawner;
+	PathBuilder paths;
+	TargetSpawner targets;
 
 	void Awake() {
 		cam = (Camera)FindObjectOfType(typeof(Camera));
-		grid = (GridBuilder)FindObjectOfType(typeof(GridBuilder));
-		spawner = (TargetSpawner)FindObjectOfType(typeof(TargetSpawner));
+		paths = (PathBuilder)FindObjectOfType(typeof(PathBuilder));
+		targets = (TargetSpawner)FindObjectOfType(typeof(TargetSpawner));
 
 		targetMask = LayerMask.GetMask("Targets");
 		surfaceMask = LayerMask.GetMask("Surfaces");
 
-		// lastPoint = grid.GetPointAtPos(transform.position);
-
 		arrows = new List<Arrow>();
-		// UpdateArrows();
 	}
 
 	void Update() {
@@ -156,7 +153,7 @@ public class TankTouch : MonoBehaviour {
 			RaycastHit2D[] hits = Physics2D.RaycastAll(laserBeam.transform.position,
 				laserBeam.transform.rotation * Vector3.up, laserBeam.transform.localScale.y, targetMask);
 			foreach (RaycastHit2D hit in hits) {
-				spawner.DestroyTarget(hit.transform.GetComponent<TargetScript>());
+				targets.DestroyTarget(hit.transform.GetComponent<TargetScript>());
 			}
 		}
 
@@ -236,7 +233,7 @@ public class TankTouch : MonoBehaviour {
 
 		// Snap to a point if close enough.
 		if (!atLastPoint) {
-			foreach (Point point in grid.GetAllPoints()) {
+			foreach (Point point in paths.GetAllPoints()) {
 				if (Vector2.Distance(smoothPos, point.position) <= snapDistance) {
 					smoothPos = new Vector2(point.position.x, point.position.y);
 					nextPoint = lastPoint;

@@ -19,7 +19,7 @@ public class TargetSpawner : MonoBehaviour {
 	List<Vector2> targetPositions = new List<Vector2>();
 	List<GameObject> activeTargets = new List<GameObject>();
 
-	public void LoadTemplate(GameObject templatePrefab) {
+	public void LoadTargetTemplate(GameObject templatePrefab) {
 		// Get the positions of all placeholders in the template, and remove the template.
 		GameObject template = Instantiate<GameObject>(templatePrefab, new Vector3(0, 0, -1000), 
 			Quaternion.identity);
@@ -28,7 +28,6 @@ public class TargetSpawner : MonoBehaviour {
 		foreach (Transform placeholder in template.transform) {
 			targetPositions.Add(placeholder.localPosition);
 		}
-
 		Destroy(template);
 	}
 
