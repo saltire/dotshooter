@@ -11,21 +11,17 @@ public struct Point {
 
 public class PathBuilder : MonoBehaviour {
 	Dictionary<Vector2, Point> points = new Dictionary<Vector2, Point>();
-	GameObject template;
+	PathTemplate template;
 
-	public void LoadPathTemplate(GameObject templatePrefab) {
-		Destroy(template);
-
-		// Get the positions of all placeholders in the template, and remove the template.
-		template = Instantiate<GameObject>(templatePrefab, transform.position, Quaternion.identity);
-		template.transform.parent = transform;
+	public void LoadPathTemplate(PathTemplate newTemplate) {
+		template = newTemplate;
 
 		// Create a lookup table of all points, indexed by local position.
 		points.Clear();
-		foreach (Transform pointObj in template.transform) {
-			if (pointObj.CompareTag("Point")) {
-				points[pointObj.localPosition] = new Point() {
-					position = pointObj.position,
+		foreach (Transform point in template.transform) {
+			if (point.CompareTag("Point")) {
+				points[point.localPosition] = new Point() {
+					position = point.position,
 					connections = new List<Point>(),
 				};
 			}
@@ -36,34 +32,36 @@ public class PathBuilder : MonoBehaviour {
 		ContactFilter2D pointFilter = new ContactFilter2D();
 		pointFilter.SetLayerMask(pointMask);
 
-		foreach (GameObject lineObj in GameObject.FindGameObjectsWithTag("Line")) {
-			Vector2 lineVector = lineObj.transform.localRotation * lineObj.transform.localScale;
+		foreach (Transform line in template.transform) {
+			if (line.CompareTag("Line")) {
+				Vector2 lineVector = line.localRotation * line.localScale;
 
-			// Find all point colliders touching the line.
-			Collider2D[] lineColls = new Collider2D[10];
-			lineObj.GetComponent<Collider2D>().OverlapCollider(pointFilter, lineColls);
+				// Find all point colliders touching the line.
+				Collider2D[] lineColls = new Collider2D[10];
+				line.GetComponent<Collider2D>().OverlapCollider(pointFilter, lineColls);
 
-			// Convert to a list of points touching the line, ordered by their position along the line.
-			Point[] linePoints = lineColls
-				.Where(coll => coll != null)
-				.Select(coll => points[coll.transform.localPosition])
-				.OrderBy(point => Vector2.Dot(point.position - lineObj.transform.position, lineVector))
-				.ToArray();
+				// Convert to a list of points touching the line, ordered by their position along the line.
+				Point[] linePoints = lineColls
+					.Where(coll => coll != null && coll.transform.parent == template.transform)
+					.Select(coll => points[coll.transform.localPosition])
+					.OrderBy(point => Vector2.Dot(point.position - line.position, lineVector))
+					.ToArray();
 
-			// Connect each point to its adjacent points.
-			for (int i = 0; i < linePoints.Length; i++) {
-				if (i > 0) {
-					linePoints[i].connections.Add(linePoints[i - 1]);
-				}
-				if (i < linePoints.Length - 1) {
-					linePoints[i].connections.Add(linePoints[i + 1]);
+				// Connect each point to its adjacent points.
+				for (int i = 0; i < linePoints.Length; i++) {
+					if (i > 0) {
+						linePoints[i].connections.Add(linePoints[i - 1]);
+					}
+					if (i < linePoints.Length - 1) {
+						linePoints[i].connections.Add(linePoints[i + 1]);
+					}
 				}
 			}
 		}
 	}
 
 	public void MoveTankToStart(TankTouch tank) {
-		tank.MoveToPoint(GetPointAtPos(template.GetComponent<PathTemplate>().startingPoint.position));
+		tank.MoveToPoint(GetPointAtPos(template.startingPoint.position));
 	}
 
 	public List<Point> GetAllPoints() {

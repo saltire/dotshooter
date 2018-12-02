@@ -15,22 +15,20 @@ public class TargetSpawner : MonoBehaviour {
 	UIManager ui;
 
 	List<Vector2> targetPositions = new List<Vector2>();
+	List<GameObject> targets = new List<GameObject>();
 	List<GameObject> activeTargets = new List<GameObject>();
 
 	void Awake() {
 		ui = (UIManager)FindObjectOfType(typeof(UIManager));
 	}
 
-	public void LoadTargetTemplate(GameObject templatePrefab) {
-		// Get the positions of all placeholders in the template, and remove the template.
-		GameObject template = Instantiate<GameObject>(templatePrefab, new Vector3(0, 0, -1000), 
-			Quaternion.identity);
-
+	public void LoadTargetTemplate(TargetTemplate template) {
+		// Get the positions of all placeholders in the template, and deactivate the template.
 		targetPositions.Clear();
 		foreach (Transform placeholder in template.transform) {
 			targetPositions.Add(placeholder.localPosition);
 		}
-		Destroy(template);
+		template.gameObject.SetActive(false);
 	}
 
 	void Start() {
@@ -39,9 +37,10 @@ public class TargetSpawner : MonoBehaviour {
 
 	public void SpawnTargets() {
 		// Remove any existing targets.
-		foreach (GameObject target in activeTargets) {
+		foreach (GameObject target in targets) {
 			Destroy(target);
 		}
+		targets.Clear();
 		activeTargets.Clear();
 	
 		// Spawn targets at the positions of each placeholder.
@@ -52,6 +51,7 @@ public class TargetSpawner : MonoBehaviour {
 			TargetScript targetScript = target.GetComponent<TargetScript>();
 			targetScript.SetColor(colors[Random.Range(0, colors.Length)]);
 
+			targets.Add(target);
 			activeTargets.Add(target);
 		}
 

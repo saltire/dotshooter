@@ -1797,7 +1797,7 @@ GameObject:
   - component: {fileID: 1762984351}
   - component: {fileID: 1762984352}
   m_Layer: 0
-  m_Name: level
+  m_Name: level manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1828,12 +1828,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tankPrefab: {fileID: 1317786312735722, guid: 89903f7138e9c9a41885a4542738b5e9, type: 2}
-  pathTemplatePrefabs:
-  - {fileID: 1017747046763528, guid: 700a3a9a90f810045944af1626e1fa8c, type: 2}
-  - {fileID: 1241952167054576, guid: 9f5480c5b3395654393eb4d92f167287, type: 2}
-  targetTemplatePrefabs:
-  - {fileID: 1579562327901544, guid: 59bb958af4fd4e24aaa35d67cbe27899, type: 2}
-  - {fileID: 1718649680350596, guid: c84dd66e0bdb5494a846df6dd9d0347c, type: 2}
+  levelPrefabs:
+  - {fileID: 1975656890874238, guid: 3ece75c1a6d867c4f853ad26bb7d1c15, type: 2}
+  - {fileID: 1610069122739642, guid: 88fb0adb64ac08a42a175a12227274a8, type: 2}
 --- !u!114 &1762984351
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class LevelManager : MonoBehaviour {
 	public GameObject tankPrefab;
-	public GameObject[] pathTemplatePrefabs;
-	public GameObject[] targetTemplatePrefabs;
+	public GameObject[] levelPrefabs;
 
 	int currentLevel = 0;
+	GameObject level;
 
 	TankTouch tank;
 	PathBuilder paths;
@@ -17,8 +17,7 @@ public class LevelManager : MonoBehaviour {
 		paths = GetComponent<PathBuilder>();
 		targets = GetComponent<TargetSpawner>();
 
-		paths.LoadPathTemplate(pathTemplatePrefabs[currentLevel]);
-		targets.LoadTargetTemplate(targetTemplatePrefabs[currentLevel]);
+		LoadLevel();
 	}
 
 	void Start() {
@@ -30,10 +29,20 @@ public class LevelManager : MonoBehaviour {
 	}
 
 	public void NextLevel() {
-		currentLevel = (currentLevel + 1) % targetTemplatePrefabs.Length;
-		paths.LoadPathTemplate(pathTemplatePrefabs[currentLevel]);
-		targets.LoadTargetTemplate(targetTemplatePrefabs[currentLevel]);
+		currentLevel = (currentLevel + 1) % levelPrefabs.Length;
+		LoadLevel();
 		StartLevel();
+	}
+
+	void LoadLevel() {
+		Destroy(level);
+
+		level = Instantiate<GameObject>(levelPrefabs[currentLevel], transform.position,
+			Quaternion.identity);
+		level.transform.parent = transform;
+
+		paths.LoadPathTemplate(level.GetComponentInChildren<PathTemplate>());
+		targets.LoadTargetTemplate(level.GetComponentInChildren<TargetTemplate>());
 	}
 
 	void StartLevel() {
