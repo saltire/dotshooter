@@ -14,6 +14,7 @@ public class TankTouch : MonoBehaviour {
 	public SpriteRenderer turnCircle;
 	public Collider2D fireTrigger;
 	public Collider2D turnTrigger;
+	public LineRenderer marchingAnts;
 	public GameObject arrowPrefab;
 
 	TouchState touchState = TouchState.IDLE;
@@ -50,7 +51,7 @@ public class TankTouch : MonoBehaviour {
 	Camera cam;
 	PathBuilder paths;
 	TargetSpawner targets;
-	UIManager ui; 
+	UIManager ui;
 
 	void Awake() {
 		cam = (Camera)FindObjectOfType(typeof(Camera));
@@ -160,6 +161,7 @@ public class TankTouch : MonoBehaviour {
 
 		laserCooldownRemaining = laserCooldown;
 		ui.shotCounter.IncrementCount(1);
+		marchingAnts.gameObject.SetActive(false);
 	}
 
 	List<GameObject> FireLaser(Vector2 origin, Vector2 direction, float totalDistance = 0) {
@@ -189,6 +191,34 @@ public class TankTouch : MonoBehaviour {
 		return lasers;
 	}
 
+	List<Vector2> GetLaserPositions() {
+		Vector2 origin = laserSpawnPoint.position;
+		Vector2 direction = laserSpawnPoint.rotation * Vector3.up;
+		float distance = 0;
+
+		List<Vector2> vertices = new List<Vector2>();
+		vertices.Add(origin);
+
+		do {
+			RaycastHit2D hit = Physics2D.Raycast(origin, direction, Mathf.Infinity, surfaceMask);
+
+			if (hit.collider != null) {
+				origin = hit.point - direction * .01f;
+				direction = Vector2.Reflect(direction, hit.normal);
+				distance += hit.distance;
+			}
+			else {
+				origin = (origin + direction * (maxLaserDistance - distance));
+				distance = maxLaserDistance;
+			}
+			
+			vertices.Add(origin);
+		}
+		while (distance < maxLaserDistance);
+
+		return vertices;
+	}
+
 	void TurnTank(Vector2 localTouchPos) {
 		float touchAngle = Vector2.SignedAngle(localTouchPos, Vector2.up);
 		float targetAngle = touchStartAngleOffset - touchAngle;
@@ -198,6 +228,8 @@ public class TankTouch : MonoBehaviour {
 
 		tankBottom.localEulerAngles = new Vector3(0, 0,
 			Mathf.Clamp(smoothAngle, -maxAngle, maxAngle));
+			
+		UpdateMarchingAnts();
 	}
 
 	void MoveTank(Vector2 localTouchPos) {
@@ -246,6 +278,7 @@ public class TankTouch : MonoBehaviour {
 
 		transform.position = new Vector3(smoothPos.x, smoothPos.y, transform.position.z);
 		UpdateArrows();
+		UpdateMarchingAnts();
 	}
 
 	public void MoveToPoint(Point point) {
@@ -256,6 +289,7 @@ public class TankTouch : MonoBehaviour {
 		tankBottom.localEulerAngles = Vector3.zero;
 
 		UpdateArrows();
+		UpdateMarchingAnts();
 	}
 
 	void ClearArrows() {
@@ -292,6 +326,17 @@ public class TankTouch : MonoBehaviour {
 					SetSpriteAlpha(arrow.GetComponent<SpriteRenderer>(), .25f);
 				}
 			}
+		}
+	}
+
+	void UpdateMarchingAnts() {
+		if (marchingAnts.gameObject.activeSelf) {
+			List<Vector2> positions = GetLaserPositions();
+
+			marchingAnts.positionCount = positions.Count;
+			marchingAnts.SetPositions(positions
+				.Select(p => new Vector3(p.x, p.y, laserSpawnPoint.position.z))
+				.ToArray());
 		}
 	}
 

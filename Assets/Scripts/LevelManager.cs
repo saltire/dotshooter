@@ -46,6 +46,7 @@ public class LevelManager : MonoBehaviour {
 	}
 
 	void StartLevel() {
+		tank.marchingAnts.gameObject.SetActive(true);
 		paths.MoveTankToStart(tank);
 		targets.SpawnTargets();
 	}
