@@ -14,13 +14,13 @@ public class TankTouch : MonoBehaviour {
 	public SpriteRenderer turnCircle;
 	public Collider2D fireTrigger;
 	public Collider2D turnTrigger;
-	public LineRenderer marchingAnts;
 	public GameObject arrowPrefab;
 
 	TouchState touchState = TouchState.IDLE;
 	int fingerId;
 
-	public GameObject laserPrefab;
+	public LineRenderer marchingAnts;
+	public LineRenderer laserBeam;
 	public GameObject laserBouncePrefab;
 	public Transform laserSpawnPoint;
 	public float laserCooldown = .5f;
@@ -70,19 +70,10 @@ public class TankTouch : MonoBehaviour {
 			laserCooldownRemaining -= Time.deltaTime;
 
 			if (laserCooldownRemaining > 0) {
-				Material mat = laserBeams[0].GetComponent<SpriteRenderer>().material;
-				Color newColor = mat.color;
-				newColor.a = laserCooldownRemaining / laserCooldown;
-				mat.color = newColor;
-
-				foreach (GameObject laserBeam in laserBeams) {
-					laserBeam.GetComponent<SpriteRenderer>().material = mat;
-				}
+				Util.SetMaterialAlpha(laserBeam.material, laserCooldownRemaining / laserCooldown);
 			}
 			else {
-				foreach (GameObject laserBeam in laserBeams) {
-					Destroy(laserBeam);
-				}
+				laserBeam.gameObject.SetActive(false);
 			}
 		}
 
@@ -106,7 +97,7 @@ public class TankTouch : MonoBehaviour {
 						currentDirection = touchingArrow.point.position - transform.position;
 
 						// Dim turning circle while moving.
-						SetSpriteAlpha(turnCircle, .25f);
+						Util.SetSpriteAlpha(turnCircle, .25f);
 					}
 					else if (turnTrigger.OverlapPoint(touchPos)) {
 						// Start turning.
@@ -117,7 +108,7 @@ public class TankTouch : MonoBehaviour {
 
 						// Dim arrows while turning.
 						foreach (Arrow arrow in arrows) {
-							SetSpriteAlpha(arrow.GetComponent<SpriteRenderer>(), .25f);
+							Util.SetSpriteAlpha(arrow.GetComponent<SpriteRenderer>(), .25f);
 						}
 					}
 				}
@@ -129,7 +120,7 @@ public class TankTouch : MonoBehaviour {
 						// Reset movement and UI.
 						currentDirection = Vector2.zero;
 						UpdateArrows();
-						SetSpriteAlpha(turnCircle, 1);
+						Util.SetSpriteAlpha(turnCircle, 1);
 					}
 					else {
 						if (touchState == TouchState.TURNING && turnTrigger.OverlapPoint(touchPos)) {
@@ -145,78 +136,70 @@ public class TankTouch : MonoBehaviour {
 	}
 
 	void Fire() {
-		// Get a list of laser beam segments (more than one if the laser bounced off a surface).
-		laserBeams = FireLaser(laserSpawnPoint.position, laserSpawnPoint.rotation * Vector3.up);
+		marchingAnts.gameObject.SetActive(false);
+		laserBeam.gameObject.SetActive(true);
 
-		foreach (GameObject laserBeam in laserBeams) {
-			laserBeam.transform.parent = laserSpawnPoint;
-
-			// Explode all targets this laser beam touches.
-			RaycastHit2D[] hits = Physics2D.RaycastAll(laserBeam.transform.position,
-				laserBeam.transform.rotation * Vector3.up, laserBeam.transform.localScale.y, targetMask);
-			foreach (RaycastHit2D hit in hits) {
-				targets.DestroyTarget(hit.transform.GetComponent<TargetScript>());
-			}
-		}
+		Vector3[] positions = GetLaserPositions(true);
+		laserBeam.positionCount = positions.Length;
+		laserBeam.SetPositions(positions);
+		
+		Util.SetMaterialAlpha(laserBeam.material, 1);
 
 		laserCooldownRemaining = laserCooldown;
 		ui.shotCounter.IncrementCount(1);
-		marchingAnts.gameObject.SetActive(false);
 	}
 
-	List<GameObject> FireLaser(Vector2 origin, Vector2 direction, float totalDistance = 0) {
-		GameObject laser = Instantiate(laserPrefab, origin,
-			Quaternion.FromToRotation(Vector2.up, direction));
-
-		List<GameObject> lasers;
-
-		RaycastHit2D hit = Physics2D.Raycast(origin, direction, Mathf.Infinity, surfaceMask);
-		if (hit.collider == null || totalDistance > maxLaserDistance) {
-			// No hits - laser will continue to infinity (or max distance reached).
-			// This is the final laser segment, so return a new list.
-			lasers = new List<GameObject>();
-		}
-		else {
-			// Hit a surface - scale laser to match the distance to the surface, and get list of bounces.
-			laser.transform.localScale = new Vector3(1, hit.distance, 1);
-			Vector2 bounceDir = Vector2.Reflect(direction, hit.normal);
-			// Move the reflection point a bit to make sure we are outside of the collider.
-			lasers = FireLaser(hit.point + bounceDir * .01f, bounceDir, totalDistance + hit.distance);
-
-			// Fire off some particles from the bounce point.
-			Instantiate(laserBouncePrefab, hit.point, Quaternion.FromToRotation(Vector2.up, hit.normal));
-		}
-
-		lasers.Add(laser);
-		return lasers;
-	}
-
-	List<Vector2> GetLaserPositions() {
+	Vector3[] GetLaserPositions(bool firing) {
 		Vector2 origin = laserSpawnPoint.position;
 		Vector2 direction = laserSpawnPoint.rotation * Vector3.up;
-		float distance = 0;
+		float totalDistance = 0;
 
-		List<Vector2> vertices = new List<Vector2>();
-		vertices.Add(origin);
+		List<Vector2> positions = new List<Vector2>();
+		positions.Add(origin);
 
 		do {
 			RaycastHit2D hit = Physics2D.Raycast(origin, direction, Mathf.Infinity, surfaceMask);
+			Vector2 nextPosition;
+			Vector2 nextDirection = Vector2.zero;
+			float segmentDistance;
 
 			if (hit.collider != null) {
-				origin = hit.point - direction * .01f;
-				direction = Vector2.Reflect(direction, hit.normal);
-				distance += hit.distance;
+				// Hit a collider: store the hit position and bounce the laser.
+				// Move the reflection point back a bit to make sure we are outside of the collider.
+				nextPosition = hit.point - direction * .01f;
+				nextDirection = Vector2.Reflect(direction, hit.normal);
+				segmentDistance = hit.distance;
+
+				if (firing) {
+					// Fire off some particles from the bounce point.
+					Instantiate(laserBouncePrefab, hit.point, Quaternion.FromToRotation(Vector2.up, hit.normal));
+				}
 			}
 			else {
-				origin = (origin + direction * (maxLaserDistance - distance));
-				distance = maxLaserDistance;
+				// No collision: extend laser to max distance.
+				segmentDistance = maxLaserDistance - totalDistance;
+				nextPosition = origin + direction * segmentDistance;
+			}
+
+			if (firing) {
+				// Destroy all targets this laser segment touches.
+				RaycastHit2D[] hits = Physics2D.RaycastAll(origin, direction, segmentDistance, targetMask);
+				foreach (RaycastHit2D targetHit in hits) {
+					targets.DestroyTarget(targetHit.transform.GetComponent<TargetScript>());
+				}
 			}
 			
-			vertices.Add(origin);
-		}
-		while (distance < maxLaserDistance);
+			positions.Add(nextPosition);
 
-		return vertices;
+			origin = nextPosition;
+			direction = nextDirection;
+			totalDistance += segmentDistance;
+		}
+		while (totalDistance < maxLaserDistance);
+
+		return positions
+			.Select(p => new Vector3(p.x, p.y, laserSpawnPoint.position.z))
+			.ToArray();
 	}
 
 	void TurnTank(Vector2 localTouchPos) {
@@ -323,7 +306,7 @@ public class TankTouch : MonoBehaviour {
 				Vector2 pointDirection = arrowPoint.position - transform.position;
 				float dirDiff = Vector2.Angle(currentDirection, pointDirection);
 				if (dirDiff != 0 && dirDiff != 180) {
-					SetSpriteAlpha(arrow.GetComponent<SpriteRenderer>(), .25f);
+					Util.SetSpriteAlpha(arrow.GetComponent<SpriteRenderer>(), .25f);
 				}
 			}
 		}
@@ -331,18 +314,9 @@ public class TankTouch : MonoBehaviour {
 
 	void UpdateMarchingAnts() {
 		if (marchingAnts.gameObject.activeSelf) {
-			List<Vector2> positions = GetLaserPositions();
-
-			marchingAnts.positionCount = positions.Count;
-			marchingAnts.SetPositions(positions
-				.Select(p => new Vector3(p.x, p.y, laserSpawnPoint.position.z))
-				.ToArray());
+			Vector3[] positions = GetLaserPositions(false);
+			marchingAnts.positionCount = positions.Length;
+			marchingAnts.SetPositions(positions);
 		}
-	}
-
-	void SetSpriteAlpha(SpriteRenderer spriter, float alpha) {
-		Color newColor = spriter.color;
-		newColor.a = alpha;
-		spriter.color = newColor;
 	}
 }
