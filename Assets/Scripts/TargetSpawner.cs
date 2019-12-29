@@ -42,7 +42,7 @@ public class TargetSpawner : MonoBehaviour {
 		}
 		targets.Clear();
 		activeTargets.Clear();
-	
+
 		// Spawn targets at the positions of each placeholder.
 		foreach (Vector2 pos in targetPositions) {
 			GameObject target = Instantiate<GameObject>(targetPrefab, pos, Quaternion.identity);

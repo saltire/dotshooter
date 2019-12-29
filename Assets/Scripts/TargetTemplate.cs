@@ -46,7 +46,7 @@ public class TargetTemplate : MonoBehaviour {
 					neighbor.transform.parent = transform;
 					neighbor.transform.RotateAround(center, Vector3.forward, 60 * i);
 				}
-				
+
 				target.transform.RotateAround(center, Vector3.forward, 60 * i);
 			}
 		}

@@ -142,7 +142,7 @@ public class TankTouch : MonoBehaviour {
 		Vector3[] positions = GetLaserPositions(true);
 		laserBeam.positionCount = positions.Length;
 		laserBeam.SetPositions(positions);
-		
+
 		Util.SetMaterialAlpha(laserBeam.material, 1);
 
 		laserCooldownRemaining = laserCooldown;
@@ -188,7 +188,7 @@ public class TankTouch : MonoBehaviour {
 					targets.DestroyTarget(targetHit.transform.GetComponent<TargetScript>());
 				}
 			}
-			
+
 			positions.Add(nextPosition);
 
 			origin = nextPosition;
@@ -211,7 +211,7 @@ public class TankTouch : MonoBehaviour {
 
 		tankBottom.localEulerAngles = new Vector3(0, 0,
 			Mathf.Clamp(smoothAngle, -maxAngle, maxAngle));
-			
+
 		UpdateMarchingAnts();
 	}
 

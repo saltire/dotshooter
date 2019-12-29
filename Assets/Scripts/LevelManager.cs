@@ -21,10 +21,10 @@ public class LevelManager : MonoBehaviour {
 	}
 
 	void Start() {
-		GameObject tankObj = Instantiate<GameObject>(tankPrefab, tankPrefab.transform.position, 
+		GameObject tankObj = Instantiate<GameObject>(tankPrefab, tankPrefab.transform.position,
 			Quaternion.identity);
 		tank = tankObj.GetComponent<TankTouch>();
-		
+
 		StartLevel();
 	}
 
