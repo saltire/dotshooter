@@ -35,13 +35,15 @@ public class PathBuilder : MonoBehaviour {
 		foreach (Transform line in template.transform) {
 			if (line.CompareTag("Line")) {
 				Vector2 lineVector = line.localRotation * line.localScale;
+				CapsuleCollider2D lineCollider = line.GetComponent<CapsuleCollider2D>();
+				lineCollider.size = new Vector2(1, 1 + 1 / line.localScale.y);
 
 				// Find all point colliders touching the line.
-				Collider2D[] lineColls = new Collider2D[10];
-				line.GetComponent<Collider2D>().OverlapCollider(pointFilter, lineColls);
+				Collider2D[] pointColls = new Collider2D[10];
+				lineCollider.OverlapCollider(pointFilter, pointColls);
 
 				// Convert to a list of points touching the line, ordered by their position along the line.
-				Point[] linePoints = lineColls
+				Point[] linePoints = pointColls
 					.Where(coll => coll != null && coll.transform.parent == template.transform)
 					.Select(coll => points[coll.transform.localPosition])
 					.OrderBy(point => Vector2.Dot(point.position - line.position, lineVector))
