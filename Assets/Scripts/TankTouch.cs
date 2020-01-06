@@ -13,6 +13,7 @@ public class TankTouch : MonoBehaviour {
 	public Transform tankBottom;
 	public SpriteRenderer turnCircle;
 	public Collider2D fireTrigger;
+	public Collider2D moveTrigger;
 	public Collider2D turnTrigger;
 	public GameObject arrowPrefab;
 
@@ -89,12 +90,13 @@ public class TankTouch : MonoBehaviour {
 					if (fireTrigger.OverlapPoint(touchPos) && laserCooldownRemaining <= 0) {
 						Fire();
 					}
-					else if (touchingArrow != null) {
+					else if (touchingArrow != null || moveTrigger.OverlapPoint(touchPos)) {
 						// Start moving.
 						touchState = TouchState.MOVING;
 						touchStartLocalPos = localTouchPos;
 						fingerId = touch.fingerId;
-						currentDirection = touchingArrow.point.position - transform.position;
+						currentDirection = touchingArrow == null ? Vector2.zero :
+							(Vector2)(touchingArrow.point.position - transform.position);
 
 						// Dim turning circle while moving.
 						Util.SetSpriteAlpha(turnCircle, .25f);
@@ -123,11 +125,11 @@ public class TankTouch : MonoBehaviour {
 						Util.SetSpriteAlpha(turnCircle, 1);
 					}
 					else {
-						if (touchState == TouchState.TURNING && turnTrigger.OverlapPoint(touchPos)) {
-							TurnTank(localTouchPos);
-						}
-						else if (touchState == TouchState.MOVING) {
+						if (touchState == TouchState.MOVING) {
 							MoveTank(localTouchPos);
+						}
+						else if (touchState == TouchState.TURNING && turnTrigger.OverlapPoint(touchPos)) {
+							TurnTank(localTouchPos);
 						}
 					}
 				}
