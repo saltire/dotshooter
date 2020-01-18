@@ -936,7 +936,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: SHOTS FIRED <color=#C13F21>0</color>
+  m_Text: SHOTS FIRED <color=#c13f21ff>0</color>
 --- !u!222 &2080477819
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1029,7 +1029,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: TARGETS LEFT <color=#C13F21>0</color>
+  m_Text: TARGETS LEFT <color=#c13f21ff>0</color>
 --- !u!222 &2087983864
 CanvasRenderer:
   m_ObjectHideFlags: 0

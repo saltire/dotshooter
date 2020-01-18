@@ -9,6 +9,7 @@ enum TouchState {
 	MOVING,
 };
 
+[ExecuteAlways]
 public class TankTouch : MonoBehaviour {
 	public Transform tankBottom;
 	public SpriteRenderer turnCircle;

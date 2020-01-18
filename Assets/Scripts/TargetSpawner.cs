@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[ExecuteAlways]
 public class TargetSpawner : MonoBehaviour {
 	public Color[] colors = {
 		Color.red,
@@ -25,34 +26,10 @@ public class TargetSpawner : MonoBehaviour {
 	public void LoadTargetTemplate(TargetTemplate template) {
 		// Get the positions of all placeholders in the template, and deactivate the template.
 		targetPositions.Clear();
-		foreach (Transform placeholder in template.transform) {
-			targetPositions.Add(placeholder.localPosition);
-		}
-		template.gameObject.SetActive(false);
-	}
-
-	void Start() {
-		SpawnTargets();
-	}
-
-	public void SpawnTargets() {
-		// Remove any existing targets.
-		foreach (GameObject target in targets) {
-			Destroy(target);
-		}
-		targets.Clear();
-		activeTargets.Clear();
-
-		// Spawn targets at the positions of each placeholder.
-		foreach (Vector2 pos in targetPositions) {
-			GameObject target = Instantiate<GameObject>(targetPrefab, pos, Quaternion.identity);
-			target.transform.parent = transform;
-
-			TargetScript targetScript = target.GetComponent<TargetScript>();
-			targetScript.SetColor(colors[Random.Range(0, colors.Length)]);
-
-			targets.Add(target);
-			activeTargets.Add(target);
+		foreach (Transform target in template.transform) {
+			targetPositions.Add(target.localPosition);
+			target.GetComponent<TargetScript>().SetColor(colors[Random.Range(0, colors.Length)]);
+			activeTargets.Add(target.gameObject);
 		}
 
 		// Reset the UI counters.

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+[ExecuteAlways]
 public class Counter : MonoBehaviour {
 	public string label = "";
 	public Color countColor = Color.red;

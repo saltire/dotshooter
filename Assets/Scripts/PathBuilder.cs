@@ -62,12 +62,12 @@ public class PathBuilder : MonoBehaviour {
 		}
 	}
 
-	public void MoveTankToStart(TankTouch tank) {
-		tank.MoveToPoint(GetPointAtPos(template.startingPoint.position));
-	}
-
 	public List<Point> GetAllPoints() {
 		return points.Values.ToList();
+	}
+
+	public Point GetStartingPoint() {
+		return GetPointAtPos(template.startingPoint.position);
 	}
 
 	public Point GetPointAtPos(Vector3 worldPos) {

@@ -8,6 +8,7 @@ TagManager:
   - Gun
   - Line
   - Arrow
+  - Level
   layers:
   - Default
   - TransparentFX
