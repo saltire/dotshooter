@@ -52,13 +52,13 @@ public class TankTouch : MonoBehaviour {
 
 	Camera cam;
 	PathBuilder paths;
-	TargetSpawner targets;
+	LevelManager level;
 	UIManager ui;
 
 	void Awake() {
 		cam = (Camera)FindObjectOfType(typeof(Camera));
 		paths = (PathBuilder)FindObjectOfType(typeof(PathBuilder));
-		targets = (TargetSpawner)FindObjectOfType(typeof(TargetSpawner));
+		level = (LevelManager)FindObjectOfType(typeof(LevelManager));
 		ui = (UIManager)FindObjectOfType(typeof(UIManager));
 
 		targetMask = LayerMask.GetMask("Targets");
@@ -188,7 +188,7 @@ public class TankTouch : MonoBehaviour {
 				// Destroy all targets this laser segment touches.
 				RaycastHit2D[] hits = Physics2D.RaycastAll(origin, direction, segmentDistance, targetMask);
 				foreach (RaycastHit2D targetHit in hits) {
-					targets.DestroyTarget(targetHit.transform.GetComponent<TargetScript>());
+					level.DestroyTarget(targetHit.transform.GetComponent<TargetScript>());
 				}
 			}
 
