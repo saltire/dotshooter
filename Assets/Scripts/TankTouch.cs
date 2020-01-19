@@ -51,13 +51,11 @@ public class TankTouch : MonoBehaviour {
 	List<Arrow> arrows;
 
 	Camera cam;
-	PathBuilder paths;
 	LevelManager level;
 	UIManager ui;
 
 	void Awake() {
 		cam = (Camera)FindObjectOfType(typeof(Camera));
-		paths = (PathBuilder)FindObjectOfType(typeof(PathBuilder));
 		level = (LevelManager)FindObjectOfType(typeof(LevelManager));
 		ui = (UIManager)FindObjectOfType(typeof(UIManager));
 
@@ -252,7 +250,7 @@ public class TankTouch : MonoBehaviour {
 
 		// Snap to a point if close enough.
 		if (!atLastPoint) {
-			foreach (Point point in paths.GetAllPoints()) {
+			foreach (Point point in level.GetAllPoints()) {
 				if (Vector2.Distance(smoothPos, point.position) <= snapDistance) {
 					smoothPos = new Vector2(point.position.x, point.position.y);
 					nextPoint = lastPoint;

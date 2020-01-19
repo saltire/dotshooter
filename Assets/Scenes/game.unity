@@ -796,8 +796,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1762984349}
   - component: {fileID: 1762984350}
-  - component: {fileID: 1762984351}
-  - component: {fileID: 1762984352}
   m_Layer: 0
   m_Name: level manager
   m_TagString: Untagged
@@ -831,42 +829,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab93b4300030284419f92fb9621f6c58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tankPrefab: {fileID: 1317786312735722, guid: 89903f7138e9c9a41885a4542738b5e9, type: 3}
   levelPrefabs:
   - {fileID: 1975656890874238, guid: 3ece75c1a6d867c4f853ad26bb7d1c15, type: 3}
   - {fileID: 1610069122739642, guid: 88fb0adb64ac08a42a175a12227274a8, type: 3}
---- !u!114 &1762984351
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1762984348}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 207dd49502092f64e80716b3cfc31b8d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  colors:
+  tankPrefab: {fileID: 1317786312735722, guid: 89903f7138e9c9a41885a4542738b5e9, type: 3}
+  targetPrefab: {fileID: 1788067917542000, guid: b3d3c8d4b089db94da02542e073e8d54,
+    type: 3}
+  targetColors:
   - {r: 0.75686276, g: 0.24705882, b: 0.12941177, a: 1}
   - {r: 0.827451, g: 0.43137255, b: 0.1764706, a: 1}
   - {r: 0.8666667, g: 0.627451, b: 0.19607843, a: 1}
   - {r: 0.47058824, g: 0.6862745, b: 0.62352943, a: 1}
   - {r: 0.39607844, g: 0.6117647, b: 0.78431374, a: 1}
-  targetPrefab: {fileID: 1788067917542000, guid: b3d3c8d4b089db94da02542e073e8d54,
-    type: 3}
---- !u!114 &1762984352
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1762984348}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c072e9afd7c905747b38f39f9b8b882b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &2080477816
 GameObject:
   m_ObjectHideFlags: 0
