@@ -832,7 +832,8 @@ MonoBehaviour:
   levelPrefabs:
   - {fileID: 1975656890874238, guid: 3ece75c1a6d867c4f853ad26bb7d1c15, type: 3}
   - {fileID: 1610069122739642, guid: 88fb0adb64ac08a42a175a12227274a8, type: 3}
-  tankPrefab: {fileID: 1317786312735722, guid: 89903f7138e9c9a41885a4542738b5e9, type: 3}
+  tankPrefab: {fileID: 4491086583484719194, guid: b211798d91b1a12438e8022e96900fef,
+    type: 3}
   targetPrefab: {fileID: 1788067917542000, guid: b3d3c8d4b089db94da02542e073e8d54,
     type: 3}
   targetColors:

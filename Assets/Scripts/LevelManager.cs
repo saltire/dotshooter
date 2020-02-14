@@ -142,9 +142,10 @@ public class LevelManager : MonoBehaviour {
 		GameObject tank = Instantiate<GameObject>(
 			tankPrefab, tankPrefab.transform.position, Quaternion.identity);
 		tank.transform.parent = transform;
-		TankTouch tankTouch = tank.GetComponent<TankTouch>();
-		tankTouch.marchingAnts.gameObject.SetActive(true);
-		tankTouch.MoveToPoint(startingPoint);
+		// TankTouch tankTouch = tank.GetComponent<TankTouch>();
+		// tankTouch.marchingAnts.gameObject.SetActive(true);
+		// tankTouch.MoveToPoint(startingPoint);
+		tank.GetComponent<TankMovement>().MoveToPoint(startingPoint);
 	}
 
 	// Targets
