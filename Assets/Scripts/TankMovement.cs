@@ -8,7 +8,6 @@ public class TankMovement : MonoBehaviour {
 	Point lastPoint;
 	Point nextPoint;
 	bool atLastPoint = true;
-	Vector2 startPos;
 	Vector2 currentDirection;
 	Vector2 moveVelocity = Vector2.zero;
 	public float smoothMoveTime = .015f;
@@ -26,13 +25,12 @@ public class TankMovement : MonoBehaviour {
 	}
 
 	public void StartMove(Vector2 localTouchPos, Arrow touchingArrow) {
-		startPos = localTouchPos;
 		currentDirection = touchingArrow == null ? Vector2.zero :
 			(Vector2)(touchingArrow.point.position - transform.position);
 	}
 
-	public void ContinueMove(Vector2 localTouchPos) {
-		Vector2 touchDirection = localTouchPos - startPos;
+	public void ContinueMove(Vector2 localTouchPos, Vector2 localStartPos) {
+		Vector2 touchDirection = localTouchPos - localStartPos;
 
 		// If tank is at a point, pick an adjacent point to move toward.
 		if (atLastPoint) {

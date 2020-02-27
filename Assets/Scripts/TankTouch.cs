@@ -5,6 +5,7 @@ using UnityEngine;
 
 enum TouchState {
 	IDLE,
+	FIRING,
 	TURNING,
 	MOVING,
 };
@@ -17,10 +18,13 @@ public class TankTouch : MonoBehaviour {
 	public Collider2D moveTrigger;
 	public Collider2D turnTrigger;
 
+	public float moveThreshold = .2f;
+
 	Camera cam;
 
 	TouchState touchState = TouchState.IDLE;
 	int fingerId;
+	Vector2 localStartPos;
 
 	void Awake() {
 		cam = (Camera)FindObjectOfType(typeof(Camera));
@@ -33,13 +37,16 @@ public class TankTouch : MonoBehaviour {
 				Vector2 localTouchPos = touchPos - (Vector2)transform.position;
 
 				if (touchState == TouchState.IDLE && touch.phase == TouchPhase.Began) {
+					// Touch starting
+
           fingerId = touch.fingerId;
+					localStartPos = localTouchPos;
 
           Arrow touchingArrow = movement.arrows
             .FirstOrDefault(arrow => arrow.GetComponent<Collider2D>().OverlapPoint(touchPos));
 
 					if (fireTrigger.OverlapPoint(touchPos)) {
-						cannon.Fire();
+						touchState = TouchState.FIRING;
 					}
 					else if (turnTrigger.OverlapPoint(touchPos)) {
 						touchState = TouchState.TURNING;
@@ -52,15 +59,30 @@ public class TankTouch : MonoBehaviour {
 				}
 			  else if (touchState != TouchState.IDLE && touch.fingerId == fingerId) {
 					if (touch.phase != TouchPhase.Ended) {
-						if (touchState == TouchState.TURNING) {
+						// Touch continuing
+
+						if (touchState == TouchState.FIRING) {
+							// If the player hits fire then moves their finger a certain amount,
+							// start treating the touch as a move instead of a fire.
+							if (Vector2.Distance(localTouchPos, localStartPos) >= moveThreshold) {
+								touchState = TouchState.MOVING;
+								movement.ContinueMove(localTouchPos, localStartPos);
+							}
+						}
+						else if (touchState == TouchState.TURNING) {
 							cannon.ContinueTurn(localTouchPos);
 						}
 						else if (touchState == TouchState.MOVING) {
-							movement.ContinueMove(localTouchPos);
+							movement.ContinueMove(localTouchPos, localStartPos);
 						}
 					}
 					else {
-						if (touchState == TouchState.TURNING) {
+						// Touch ending
+
+						if (touchState == TouchState.FIRING) {
+							cannon.Fire();
+						}
+						else if (touchState == TouchState.TURNING) {
 							cannon.EndTurn();
 						}
 						else if (touchState == TouchState.MOVING) {

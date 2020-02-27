@@ -350,6 +350,7 @@ MonoBehaviour:
   fireTrigger: {fileID: 6506527350247909067}
   moveTrigger: {fileID: 8888881214138969165}
   turnTrigger: {fileID: 3133829911712195692}
+  moveThreshold: 0.2
 --- !u!114 &8104816886273878468
 MonoBehaviour:
   m_ObjectHideFlags: 0
