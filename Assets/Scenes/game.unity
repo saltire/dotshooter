@@ -834,14 +834,6 @@ MonoBehaviour:
   - {fileID: 1610069122739642, guid: 88fb0adb64ac08a42a175a12227274a8, type: 3}
   tankPrefab: {fileID: 4491086583484719194, guid: b211798d91b1a12438e8022e96900fef,
     type: 3}
-  targetPrefab: {fileID: 1788067917542000, guid: b3d3c8d4b089db94da02542e073e8d54,
-    type: 3}
-  targetColors:
-  - {r: 0.75686276, g: 0.24705882, b: 0.12941177, a: 1}
-  - {r: 0.827451, g: 0.43137255, b: 0.1764706, a: 1}
-  - {r: 0.8666667, g: 0.627451, b: 0.19607843, a: 1}
-  - {r: 0.47058824, g: 0.6862745, b: 0.62352943, a: 1}
-  - {r: 0.39607844, g: 0.6117647, b: 0.78431374, a: 1}
 --- !u!1 &2080477816
 GameObject:
   m_ObjectHideFlags: 0

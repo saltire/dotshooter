@@ -11,14 +11,6 @@ public struct Point {
 public class LevelManager : MonoBehaviour {
 	public GameObject[] levelPrefabs;
 	public GameObject tankPrefab;
-	public GameObject targetPrefab;
-
-	public Color[] targetColors = {
-		Color.red,
-		Color.yellow,
-		Color.green,
-		Color.blue,
-	};
 
 	int currentLevel = 0;
 
@@ -58,9 +50,6 @@ public class LevelManager : MonoBehaviour {
 		LoadPoints(pathTemplate);
 
 		SpawnTank(GetPointAtPos(pathTemplate.startingPoint.position));
-		SpawnTargets(level.GetComponentInChildren<TargetTemplate>());
-
-		ui.targetCounter.SetCount(targets.Count);
 		ui.shotCounter.SetCount(0);
 	}
 
@@ -150,14 +139,10 @@ public class LevelManager : MonoBehaviour {
 
 	// Targets
 
-	void SpawnTargets(TargetTemplate template) {
+	public void SetTargets(IEnumerable<GameObject> newTargets) {
 		targets.Clear();
-
-		foreach (Transform target in template.transform) {
-			targets.Add(target.gameObject);
-			target.GetComponent<TargetScript>()
-				.SetColor(targetColors[Random.Range(0, targetColors.Length)]);
-		}
+		targets.AddRange(newTargets);
+		ui.targetCounter.SetCount(targets.Count);
 	}
 
 	public void DestroyTarget(TargetScript target) {
