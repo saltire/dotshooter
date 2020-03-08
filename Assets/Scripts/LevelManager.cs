@@ -12,6 +12,10 @@ public class LevelManager : MonoBehaviour {
 	public GameObject[] levelPrefabs;
 	public GameObject tankPrefab;
 
+	public TargetScript bombPrefab;
+	public TargetScript dotPrefab;
+	public Dictionary<string, TargetScript> targetPrefabs { get; private set; }
+
 	int currentLevel = 0;
 
 	UIManager ui;
@@ -22,6 +26,11 @@ public class LevelManager : MonoBehaviour {
 
 	void Awake() {
 		ui = (UIManager)FindObjectOfType(typeof(UIManager));
+
+		targetPrefabs = new Dictionary<string, TargetScript>() {
+			{ "bomb", bombPrefab },
+			{ "dot", dotPrefab },
+		};
 	}
 
 	void Start() {

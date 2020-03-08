@@ -7,10 +7,13 @@ TextureImporter:
     second: target
   - first:
       213: 5821468726486201317
-    second: target-tiles_0
+    second: dot
   - first:
       213: 7555084237383210223
-    second: target-tiles_0
+    second: dot
+  - first:
+      213: -4840338017268159457
+    second: bomb
   externalObjects: {}
   serializedVersion: 10
   mipmaps:
@@ -107,7 +110,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: target-tiles_0
+      name: dot
       rect:
         serializedVersion: 2
         x: 200
@@ -115,7 +118,7 @@ TextureImporter:
         width: 200
         height: 200
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -123,6 +126,27 @@ TextureImporter:
       bones: []
       spriteID: fe41169d51d09d860800000000000000
       internalID: 7555084237383210223
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bomb
+      rect:
+        serializedVersion: 2
+        x: 400
+        y: 0
+        width: 200
+        height: 200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f1ca9efe73aa3dcb0800000000000000
+      internalID: -4840338017268159457
       vertices: []
       indices: 
       edges: []

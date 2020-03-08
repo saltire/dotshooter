@@ -832,7 +832,12 @@ MonoBehaviour:
   levelPrefabs:
   - {fileID: 1975656890874238, guid: 3ece75c1a6d867c4f853ad26bb7d1c15, type: 3}
   - {fileID: 1610069122739642, guid: 88fb0adb64ac08a42a175a12227274a8, type: 3}
+  - {fileID: 1659845876193186411, guid: ead80bfe31d313744af425aae55c41cd, type: 3}
   tankPrefab: {fileID: 4491086583484719194, guid: b211798d91b1a12438e8022e96900fef,
+    type: 3}
+  bombPrefab: {fileID: 8521118111572433248, guid: 0e4f226cc1fc47a47b916335be40defd,
+    type: 3}
+  dotPrefab: {fileID: 114836686959247620, guid: b3d3c8d4b089db94da02542e073e8d54,
     type: 3}
 --- !u!1 &2080477816
 GameObject:
