@@ -22,7 +22,7 @@ public class LevelManager : MonoBehaviour {
 
 	Dictionary<Vector2, Point> points = new Dictionary<Vector2, Point>();
 
-	List<GameObject> targets = new List<GameObject>();
+	List<TargetScript> targets;
 
 	void Awake() {
 		ui = (UIManager)FindObjectOfType(typeof(UIManager));
@@ -148,20 +148,21 @@ public class LevelManager : MonoBehaviour {
 
 	// Targets
 
-	public void SetTargets(IEnumerable<GameObject> newTargets) {
-		targets.Clear();
-		targets.AddRange(newTargets);
+	public void SetTargets(List<TargetScript> newTargets) {
+		targets = newTargets;
 		ui.targetCounter.SetCount(targets.Count);
 	}
 
 	public void DestroyTarget(TargetScript target) {
 		target.Explode();
 
-		targets.Remove(target.gameObject);
-		ui.targetCounter.IncrementCount(-1);
+		if (targets.Contains(target)) {
+			targets.Remove(target);
+			ui.targetCounter.SetCount(targets.Count);
 
-		if (targets.Count == 0) {
-			ui.successPanel.SetActive(true);
+			if (targets.Count == 0) {
+				ui.successPanel.SetActive(true);
+			}
 		}
 	}
 }

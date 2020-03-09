@@ -3,6 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class TargetScript : MonoBehaviour {
+	protected LevelManager level;
+
+	protected int x;
+	protected int y;
+
+	void Awake() {
+		level = FindObjectOfType<LevelManager>();
+	}
+
+	public void SetPos(int px, int py) {
+		x = px;
+		y = py;
+	}
+
 	public void SetColor(Color color) {
 		GetComponent<SpriteRenderer>().color = color;
 
@@ -10,7 +24,7 @@ public class TargetScript : MonoBehaviour {
 		main.startColor = color;
 	}
 
-	public void Explode() {
+	public virtual void Explode() {
 		SpriteRenderer spriter = GetComponent<SpriteRenderer>();
 		if (spriter.enabled) {
 			spriter.enabled = false;

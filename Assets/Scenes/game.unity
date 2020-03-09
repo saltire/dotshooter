@@ -835,7 +835,7 @@ MonoBehaviour:
   - {fileID: 1659845876193186411, guid: ead80bfe31d313744af425aae55c41cd, type: 3}
   tankPrefab: {fileID: 4491086583484719194, guid: b211798d91b1a12438e8022e96900fef,
     type: 3}
-  bombPrefab: {fileID: 8521118111572433248, guid: 0e4f226cc1fc47a47b916335be40defd,
+  bombPrefab: {fileID: 956223513752604939, guid: fdbccd6d9c55d5e468b94bcf477dd591,
     type: 3}
   dotPrefab: {fileID: 114836686959247620, guid: b3d3c8d4b089db94da02542e073e8d54,
     type: 3}
